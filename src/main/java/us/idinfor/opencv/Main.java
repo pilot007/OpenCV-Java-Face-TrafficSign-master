@@ -28,6 +28,7 @@ import org.opencv.objdetect.CascadeClassifier;
 import net.sourceforge.tess4j.TessAPI;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
+import net.sourceforge.tess4j.util.LoadLibs;
 
 public class Main
 {
@@ -63,7 +64,7 @@ class DetectSignalDemo {
 	 // directory.
 	final URI xmlUri = getClass().getResource("/cascade.xml").toURI();
     final CascadeClassifier signalDetector =new CascadeClassifier(new File(xmlUri).getAbsolutePath());
-    final URI imageUri = getClass().getResource("/60kmh.jpg").toURI();
+    final URI imageUri = getClass().getResource("/81kmh.jpg").toURI();
     final Mat image = Imgcodecs.imread(new File(imageUri).getAbsolutePath(),org.opencv.imgcodecs.Imgcodecs.CV_LOAD_IMAGE_COLOR);
 	
 	 // Detect signals in the image.
@@ -78,7 +79,9 @@ class DetectSignalDemo {
 	 }
 	
 		System.out.println("Tesseract start ");
+		File tess=LoadLibs.extractTessResources("tessdata");
 		Tesseract instance = new Tesseract(); //
+		instance.setDatapath(tess.getAbsolutePath());
 		instance.setLanguage("eng");
 		System.setProperty("jna.encoding", "UTF8");
 		instance.setOcrEngineMode(TessAPI.TessOcrEngineMode.OEM_DEFAULT);
@@ -88,23 +91,24 @@ class DetectSignalDemo {
 		for (Rect rect : signalDetections.toArray()) {
 			i++;
 			BufferedImage letter = matToBufferedImage(image.submat(rect));
-			//String result = instance.doOCR(letter);
-			//System.err.print(" res BufferedImage: "+i+ ": " + result );
-			//ImageIO.write(letter, "jpg", new File("C:\\img\\_00XXX"+i+".jpg"));
+			Mat lett = image.submat(rect);
+			String result = instance.doOCR(letter);
+			System.err.println(" res BufferedImage: "+i+ ": " + result );
+			Imgcodecs.imwrite("output/_00XXXZ"+i+".jpg",lett);
 			
-			 String filename = "output/_00XXX"+i+".jpg";
-			 System.out.println(String.format("Writing %s", filename));
-			 Imgcodecs.imwrite(filename, image);
+			 //String filename = "output/_00XXX"+i+".jpg";
+			 //System.out.println(String.format("Writing %s", filename));
+			 //Imgcodecs.imwrite(filename, image);
 			
 			
-		     Mat sss = new Mat(image,rect);
+		     //Mat sss = new Mat(image,rect);
 		     //Imgcodecs.imwrite("C:\\img\\_00"+i+".jpg", sss  );
-			 filename = "output/_00XXXX"+i+".jpg";
-			 System.out.println(String.format("Writing %s", filename));
-			 Imgcodecs.imwrite(filename, sss);
+			 //filename = "output/_00XXXX"+i+".jpg";
+			 //System.out.println(String.format("Writing %s", filename));
+			 //Imgcodecs.imwrite(filename, sss);
 		    
 		    
-		    File input = new File("C:\\img\\_00"+i+".jpg");
+		    //File input = new File("C:\\img\\_00"+i+".jpg");
 		    //result = instance.doOCR (input);
 		    //System.err.println(" res: "+i+ ": " + result );
 		}		
